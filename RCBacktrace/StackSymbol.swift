@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct StackSymbol {
+struct StackSymbol: CustomStringConvertible {
     public let symbol: String
     public let file: String
     public let address: UInt
@@ -45,7 +45,7 @@ struct StackSymbol {
             file: info.dli_fname.flatMap { String(cString: $0) } ?? "",
             address: address,
             demangledSymbol: stdlib_demangleName(symbol),
-            image: info.image,
+            image: info.imageName,
             offset: info.offset(with: address),
             index: index
         )
@@ -77,7 +77,8 @@ struct StackSymbol {
 }
 
 extension dl_info {
-    fileprivate var image: String {
+    /// returns: the "image" (shared object pathname) for the instruction
+    fileprivate var imageName: String {
         if let dliFileName = dli_fname, let fname = String(validatingUTF8: dliFileName),
            let _ = fname.range(of: "/", options: .backwards, range: nil, locale: nil) {
             return (fname as NSString).lastPathComponent
@@ -87,18 +88,20 @@ extension dl_info {
         }
     }
 
+    /// returns: the symbol nearest the address
     fileprivate var symbol: String {
         if let dliSourceName = dli_sname, let sname = String(validatingUTF8: dliSourceName) {
             return sname
         }
         else if let dliFileName = dli_fname, let _ = String(validatingUTF8: dliFileName) {
-            return image
+            return imageName
         }
         else {
             return String(format: "0x%1x", UInt(bitPattern: dli_saddr))
         }
     }
 
+    /// returns: the address' offset relative to the nearest symbol
     fileprivate func offset(with address: UInt) -> Int {
         if let dliSourceName = dli_sname, let _ = String(validatingUTF8: dliSourceName) {
             return Int(address - UInt(bitPattern: dli_saddr))

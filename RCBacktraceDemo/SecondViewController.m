@@ -36,9 +36,6 @@
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-        [Backtrace callstackWithThread:[NSThread mainThread]];
-    });
     [self foo];
 }
 

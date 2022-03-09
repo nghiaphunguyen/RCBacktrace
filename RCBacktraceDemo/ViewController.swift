@@ -9,16 +9,6 @@
 import UIKit
 import RCBacktrace
 
-@objcMembers public class Backtrace: NSObject {
-
-    public static func callstack(thread: Thread) {
-        let symbols = RCBacktrace.callstack(.main)
-        for symbol in symbols {
-            print(symbol.description)
-        }
-    }
-}
-
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
@@ -34,14 +24,7 @@ class ViewController: UIViewController {
     }
 
     @objc func tapTest() {
-        DispatchQueue.global().async {
-            let symbols = RCBacktrace.callstack(.main)
-            for symbol in symbols {
-                print(symbol.description)
-            }
-        }
-
-        foo()
+        print(RCBacktrace.all)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
