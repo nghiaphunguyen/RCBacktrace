@@ -8,7 +8,7 @@
 
 import Foundation
 
-@_silgen_name("mach_RCBacktrace")
+@_silgen_name("mach_backtrace")
 func backtrace(
     _ thread: thread_t,
     stack: UnsafeMutablePointer<UnsafeMutableRawPointer?>?,
@@ -48,7 +48,7 @@ public enum RCBacktrace {
 
         let currentThreadID = mach_thread_self()
 
-        let RCBacktraces = threadIDs.reduce([Int: [String]]()) { result, threadID in
+        let backTraces = threadIDs.reduce([Int: [String]]()) { result, threadID in
             var result = result
             let symbols = Self.mach_callstack(threadID)
             let callstacks = symbols.map { $0.description }
@@ -57,6 +57,6 @@ public enum RCBacktrace {
             return result
         }
 
-        return RCBacktraces
+        return backTraces
     }
 }
