@@ -13,12 +13,7 @@
 #include <machine/_mcontext.h>
 
 // macro `MACHINE_THREAD_STATE` shipped with system header is wrong..
-#if defined __i386__
-#define THREAD_STATE_FLAVOR x86_THREAD_STATE
-#define THREAD_STATE_COUNT  x86_THREAD_STATE_COUNT
-#define __framePointer      __ebp
-
-#elif defined __x86_64__
+#if defined __x86_64__
 #define THREAD_STATE_FLAVOR x86_THREAD_STATE64
 #define THREAD_STATE_COUNT  x86_THREAD_STATE64_COUNT
 #define __framePointer      __rbp
@@ -113,6 +108,9 @@ int mach_backtrace(thread_t thread, void** stack, int maxSymbols) {
 #endif
     void **currentFramePointer = (void **)machineContext.__ss.__framePointer;
     while (i < maxSymbols) {
+        if (currentFramePointer == NULL) {
+            break;
+        }
         void **previousFramePointer = *currentFramePointer;
         if (!previousFramePointer) break;
         stack[i] = *(currentFramePointer+1);

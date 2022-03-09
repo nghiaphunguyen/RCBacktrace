@@ -9,25 +9,25 @@
 import Foundation
 
 @_silgen_name("swift_demangle")
-public
-func _stdlib_demangleImpl(
+func stdlib_demangleImpl(
     mangledName: UnsafePointer<CChar>?,
     mangledNameLength: UInt,
     outputBuffer: UnsafeMutablePointer<CChar>?,
     outputBufferSize: UnsafeMutablePointer<UInt>?,
     flags: UInt32
-    ) -> UnsafeMutablePointer<CChar>?
+) -> UnsafeMutablePointer<CChar>?
 
-public func _stdlib_demangleName(_ mangledName: String) -> String {
-    return mangledName.utf8CString.withUnsafeBufferPointer {
-        (mangledNameUTF8CStr) in
+func stdlib_demangleName(_ mangledName: String) -> String {
+    mangledName.utf8CString.withUnsafeBufferPointer {
+        mangledNameUTF8CStr in
 
-        let demangledNamePtr = _stdlib_demangleImpl(
+        let demangledNamePtr = stdlib_demangleImpl(
             mangledName: mangledNameUTF8CStr.baseAddress,
             mangledNameLength: UInt(mangledNameUTF8CStr.count - 1),
             outputBuffer: nil,
             outputBufferSize: nil,
-            flags: 0)
+            flags: 0
+        )
 
         if let demangledNamePtr = demangledNamePtr {
             let demangledName = String(cString: demangledNamePtr)
