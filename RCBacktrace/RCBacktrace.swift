@@ -46,8 +46,6 @@ public enum RCBacktrace {
             threadIDs.append(threadID)
         }
 
-        let currentThreadID = mach_thread_self()
-
         let backTraces = threadIDs.reduce([Int: [String]]()) { result, threadID in
             var result = result
             let symbols = Self.mach_callstack(threadID)
