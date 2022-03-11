@@ -96,21 +96,28 @@ extension dl_info {
         else if let dliFileName = dli_fname, let _ = String(validatingUTF8: dliFileName) {
             return imageName
         }
+        else if let dliSourceAddress = dli_saddr {
+            return String(format: "0x%1x", UInt(bitPattern: dliSourceAddress))
+        }
         else {
-            return String(format: "0x%1x", UInt(bitPattern: dli_saddr))
+            return "???"
         }
     }
 
     /// returns: the address' offset relative to the nearest symbol
     fileprivate func offset(with address: UInt) -> Int {
-        if let dliSourceName = dli_sname, let _ = String(validatingUTF8: dliSourceName) {
-            return Int(address - UInt(bitPattern: dli_saddr))
+        if let dliSourceName = dli_sname, let _ = String(validatingUTF8: dliSourceName),
+           let dliSourceAddress = dli_saddr {
+            return Int(address - UInt(bitPattern: dliSourceAddress))
         }
-        else if let dliFileName = dli_fname, let _ = String(validatingUTF8: dliFileName) {
-            return Int(address - UInt(bitPattern: dli_fbase))
+        else if let dliFileName = dli_fname, let _ = String(validatingUTF8: dliFileName),
+                let dliFileBase = dli_fbase {
+            return Int(address - UInt(bitPattern: dliFileBase))
         }
-        else {
-            return Int(address - UInt(bitPattern: dli_saddr))
+        else if let dliSourceAddrss = dli_saddr {
+            return Int(address - UInt(bitPattern: dliSourceAddrss))
+        } else {
+            return 0
         }
     }
 }
