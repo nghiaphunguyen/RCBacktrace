@@ -14,7 +14,7 @@ struct StackSymbol: CustomStringConvertible {
     public let address: UInt
     public let demangledSymbol: String
     public let image: String
-    public let offset: Int
+    public let offset: UInt
     public let index: Int
 
     private init(
@@ -23,7 +23,7 @@ struct StackSymbol: CustomStringConvertible {
         address: UInt,
         demangledSymbol: String,
         image: String,
-        offset: Int,
+        offset: UInt,
         index: Int
     ) {
         self.symbol = symbol
@@ -105,19 +105,25 @@ extension dl_info {
     }
 
     /// returns: the address' offset relative to the nearest symbol
-    fileprivate func offset(with address: UInt) -> Int {
+    fileprivate func offset(with address: UInt) -> UInt {
         if let dliSourceName = dli_sname, let _ = String(validatingUTF8: dliSourceName),
            let dliSourceAddress = dli_saddr {
-            return Int(address - UInt(bitPattern: dliSourceAddress))
+            return address.safeSub(UInt(bitPattern: dliSourceAddress))
         }
         else if let dliFileName = dli_fname, let _ = String(validatingUTF8: dliFileName),
                 let dliFileBase = dli_fbase {
-            return Int(address - UInt(bitPattern: dliFileBase))
+            return address.safeSub(UInt(bitPattern: dliFileBase))
         }
         else if let dliSourceAddrss = dli_saddr {
-            return Int(address - UInt(bitPattern: dliSourceAddrss))
+            return address.safeSub(UInt(bitPattern: dliSourceAddrss))
         } else {
             return 0
         }
+    }
+}
+
+extension UInt {
+    fileprivate func safeSub(_ b: UInt) -> UInt {
+        self >= b ? self - b : 0
     }
 }
